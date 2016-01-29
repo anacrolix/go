@@ -2060,8 +2060,17 @@ func (mux *ServeMux) Handle(pattern string, handler Handler) {
 			// strings.Index can't be -1.
 			path = pattern[strings.Index(pattern, "/"):]
 		}
+		secondLastSlash := strings.LastIndex(path[:len(path)-1], "/")
+		if secondLastSlash != -1 {
+			path = path[secondLastSlash+1:]
+		}
 		url := &url.URL{Path: path}
-		mux.m[pattern[0:n-1]] = muxEntry{h: RedirectHandler(url.String(), StatusMovedPermanently), pattern: pattern}
+		mux.m[pattern[0:n-1]] = muxEntry{
+			h: HandlerFunc(func(w ResponseWriter, r *Request) {
+				w.Header().Set("Location", url.String())
+				w.WriteHeader(StatusMovedPermanently)
+			}),
+			pattern: pattern}
 	}
 }
 

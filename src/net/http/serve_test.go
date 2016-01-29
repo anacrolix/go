@@ -231,9 +231,9 @@ var vtests = []struct {
 	{"http://otherHost.com/someDir/apage", "someDir"},
 	{"http://otherHost.com/aDir/apage", "Default"},
 	// redirections for trees
-	{"http://localhost/someDir", "/someDir/"},
-	{"http://localhost/%23", "/%23/"},
-	{"http://someHost.com/someDir", "/someDir/"},
+	{"http://localhost/someDir", "someDir/"},
+	{"http://localhost/%23", "%23/"},
+	{"http://someHost.com/someDir", "someDir/"},
 }
 
 func TestHostHandlers(t *testing.T) {
