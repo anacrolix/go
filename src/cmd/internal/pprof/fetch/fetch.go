@@ -7,9 +7,11 @@
 package fetch
 
 import (
+	"crypto/tls"
 	"fmt"
 	"io"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"net/url"
 	"os"
@@ -59,7 +61,15 @@ func FetchURL(source string, timeout time.Duration) (io.ReadCloser, error) {
 
 // PostURL issues a POST to a URL over HTTP.
 func PostURL(source, post string) ([]byte, error) {
-	resp, err := http.Post(source, "application/octet-stream", strings.NewReader(post))
+	log.Print(source)
+	client := &http.Client{
+		Transport: &http.Transport{
+			// ResponseHeaderTimeout: timeout + 5*time.Second,
+			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+		},
+	}
+
+	resp, err := client.Post(source, "application/octet-stream", strings.NewReader(post))
 	if err != nil {
 		return nil, fmt.Errorf("http post %s: %v", source, err)
 	}
@@ -76,6 +86,7 @@ var httpGet = func(url string, timeout time.Duration) (*http.Response, error) {
 	client := &http.Client{
 		Transport: &http.Transport{
 			ResponseHeaderTimeout: timeout + 5*time.Second,
+			TLSClientConfig:       &tls.Config{InsecureSkipVerify: true},
 		},
 	}
 	return client.Get(url)
